@@ -1,6 +1,7 @@
 name: nodejs-feature-branch-workflow
 on: 
-  workflow_dispatch:
+  # some one should call this
+  workflow_call:
     inputs:
       project:
         description: 'Project name'
