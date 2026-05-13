@@ -82,6 +82,14 @@ jobs:
           output-file: 'security-report.csv'
           fail-on-alerts: 'true'  # Fail workflow if alerts found
 
+      - name: Update status — library-scan
+        uses: daws-88s/workflows/.github/actions/update-commit-status@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          context: unit-tests
+          state: ${{ steps.library_scan.outcome }}
+          description: Unit tests ${{ steps.library_scan.outcome }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
@@ -109,10 +117,26 @@ jobs:
           exit-code: 1
           severity: 'CRITICAL,HIGH'
 
+      - name: Update status — trivy-scan
+        uses: daws-88s/workflows/.github/actions/update-commit-status@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          context: unit-tests
+          state: ${{ steps.trivy_scan.outcome }}
+          description: Unit tests ${{ steps.trivy_scan.outcome }}
+
       - name: push image
         id: push_image
         run: |
           docker push  ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${APP_VERSION}
+
+      - name: Update status — push-image
+        uses: daws-88s/workflows/.github/actions/update-commit-status@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          context: unit-tests
+          state: ${{ steps.push_image.outcome }}
+          description: Unit tests ${{ steps.push_image.outcome }}
 
       - name: Slack alert
         if: always()
